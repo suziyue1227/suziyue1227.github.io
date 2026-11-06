@@ -3,47 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的个人主页</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f6f8fa;
-            color: #24292f;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 400px;
-        }
-        h1 { margin-bottom: 10px; }
-        p { color: #57606a; line-height: 1.6; }
-        .links { margin-top: 20px; }
-        .links a {
-            display: inline-block;
-            margin: 0 10px;
-            color: #0969da;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .links a:hover { text-decoration: underline; }
-    </style>
+    <title>内部资源下载中心</title>
+    
+    <!-- 1. Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- 3. CryptoJS 加解密库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
-<body>
-    <div class="container">
-        <h1>👋 你好，我是 [你的名字]</h1>
-        <p>欢迎来到我的 GitHub Pages 主页！<br>这里将会记录我的项目和学习笔记。</p>
-        <div class="links">
-            <a href="https://github.com/你的用户名" target="_blank">我的 GitHub</a>
-            <a href="mailto:你的邮箱@example.com">联系我</a>
+<body class="bg-gray-100 font-sans min-h-screen flex items-center justify-center p-4">
+
+<div id="app" class="w-full max-w-2xl">
+
+    <!-- ================= 登录界面 ================= -->
+    <div v-if="!isLoggedIn" class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md mx-auto">
+        <div class="text-center mb-8">
+            <div class="text-4xl mb-2">🔒</div>
+            <h2 class="text-2xl font-bold text-gray-800">内部资源下载中心</h2>
+            <p class="text-sm text-gray-500 mt-2">请登录后获取下载权限</p>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">用户名</label>
+            <input v-model="username" type="text" placeholder="请输入用户名" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2">密码</label>
+            <input v-model="password" type="password" placeholder="请输入密码" @keyup.enter="login" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <p v-if="errorMsg" class="text-red-500 text-sm mb-4 text-center">{{ errorMsg }}</p>
+
+        <button @click="login" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition shadow-md">
+            登 录
+        </button>
+    </div>
+
+    <!-- ================= 登录后的下载界面 ================= -->
+    <div v-else class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold tracking-wider mb-1">📁 资源下载中心</h1>
+                <p class="text-blue-100 text-xs">欢迎回来，{{ username }}</p>
+            </div>
+            <button @click="logout" class="text-sm bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition backdrop-blur-sm">
+                退出登录
+            </button>
+        </header>
+
+        <div class="p-6">
+            <!-- 如果列表是空的，显示提示 -->
+            <div v-if="files.length === 0" class="text-center py-10 text-gray-400">
+                <div class="text-4xl mb-2">📭</div>
+                <p>暂无下载资源</p>
+            </div>
+
+            <ul class="space-y-4">
+                <!-- 循环渲染下载列表 -->
+                <li v-for="(file, index) in files" :key="index" class="flex flex-col sm:flex-row justify-between sm:items-center bg-gray-50 p-5 rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md transition duration-300 gap-4">
+                    <div class="flex-1">
+                        <div class="font-bold text-gray-800 text-lg flex items-center">
+                            <span class="text-2xl mr-3">{{ file.icon || '📄' }}</span> {{ file.name }}
+                        </div>
+                        <div class="text-sm text-gray-500 mt-1 ml-9">大小: {{ file.size }} | 更新日期: {{ file.date }}</div>
+                    </div>
+                    <a :href="file.url" target="_blank" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition flex items-center justify-center shadow-sm w-full sm:w-auto">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        下载文件
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="bg-gray-50 p-4 text-center text-xs text-gray-400 border-t">
+            &copy; 2024 内部资源站. 非授权人员请勿传播。
         </div>
     </div>
+
+</div>
+
+<script>
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            const isLoggedIn = ref(false);
+            const username = ref('');
+            const password = ref('');
+            const errorMsg = ref('');
+
+            // ================= 账号密码配置（加密比对） =================
+            // 账号 abc, 密码 123456 的 SHA256 哈希值
+            const HASH_USER = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"; 
+            const HASH_PASS = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"; 
+
+            // ================= 🚀 你的下载列表（当前为空） =================
+            // 当你需要添加文件时，按照下面的格式添加即可：
+            /* 
+            { 
+                icon: "📦", 
+                name: "你的文件名.zip", 
+                size: "大小", 
+                date: "日期", 
+                url: "网盘链接或文件直链" 
+            }
+            */
+            const files = ref([]); 
+            // ==========================================================
+
+            onMounted(() => {
+                if (localStorage.getItem('isLoggedIn') === 'true') {
+                    isLoggedIn.value = true;
+                    username.value = localStorage.getItem('username');
+                }
+            });
+
+            const login = () => {
+                errorMsg.value = '';
+                // 将用户输入转为哈希值
+                const inputUserHash = CryptoJS.SHA256(username.value).toString();
+                const inputPassHash = CryptoJS.SHA256(password.value).toString();
+
+                if (inputUserHash === HASH_USER && inputPassHash === HASH_PASS) {
+                    isLoggedIn.value = true;
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('username', username.value);
+                } else {
+                    errorMsg.value = '账号或密码错误，请重试！';
+                }
+            };
+
+            const logout = () => {
+                isLoggedIn.value = false;
+                username.value = '';
+                password.value = '';
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('username');
+            };
+
+            return {
+                isLoggedIn, username, password, errorMsg, login, logout, files
+            }
+        }
+    }).mount('#app');
+</script>
+
 </body>
 </html>
