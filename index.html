@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="suziyue 个人主页">
 <meta name="author" content="suziyue">
-<title>suziyue | 个人主页</title>
+<title>suziyue | 终端控制台</title>
 <link rel="icon" href="https://w.saobby.com/i/50x439dc" type="image/png">
+<!-- 引入等宽字体，增强极客感 -->
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
 <script>
-  // 主题预设脚本（防止刷新时闪烁）
   try {
     var pref = localStorage.getItem('site_theme') || 'auto';
     var isDark = pref === 'dark' || (pref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -18,7 +19,6 @@
 </script>
 
 <style>
-  /* ================= 基础变量与主题 ================= */
   :root {
     --text: #ffffff;
     --text-sub: #a1a1aa;
@@ -27,145 +27,170 @@
     --card-hover: rgba(255, 255, 255, 0.08);
     --nav-bg: rgba(20, 20, 25, 0.6);
     --accent: #6fa8ff;
+    --accent-glow: rgba(111, 168, 255, 0.5);
     --shadow: 0 10px 40px rgba(0,0,0,0.3);
     
-    /* 暗色模式背景渐变 */
-    --bg-grad-1: #09090b;
-    --bg-grad-2: #1a0b2e;
-    --bg-grad-3: #0d1b3e;
+    --bg-grad-1: #050505;
+    --bg-grad-2: #0f0a1c;
+    --bg-grad-3: #061224;
   }
   
-  /* 亮色模式 */
   [data-theme="light"] {
     --text: #0f172a;
     --text-sub: #64748b;
-    --glass: rgba(255, 255, 255, 0.6);
-    --glass-border: rgba(0, 0, 0, 0.05);
+    --glass: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(0, 0, 0, 0.08);
     --card-hover: rgba(255, 255, 255, 0.9);
-    --nav-bg: rgba(255, 255, 255, 0.7);
-    --accent: #3b82f6;
-    --shadow: 0 10px 40px rgba(0,0,0,0.05);
+    --nav-bg: rgba(255, 255, 255, 0.8);
+    --accent: #2563eb;
+    --accent-glow: rgba(37, 99, 235, 0.2);
+    --shadow: 0 10px 40px rgba(0,0,0,0.08);
     
-    /* 亮色模式背景渐变 */
     --bg-grad-1: #f8fafc;
     --bg-grad-2: #e2e8f0;
     --bg-grad-3: #dbeafe;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
   
-  /* 修改 body 应用渐变动画 */
   body { 
     background: linear-gradient(-45deg, var(--bg-grad-1), var(--bg-grad-2), var(--bg-grad-3), var(--bg-grad-1));
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
-    color: var(--text); 
-    overflow: hidden; 
-    transition: color 0.4s; 
-    height: 100vh; 
+    color: var(--text); overflow: hidden; height: 100vh; 
   }
 
-  @keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
+  @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-  /* ================= 动态背景 Canvas (保留星空效果) ================= */
-  #bg-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
+  /* 字体特殊处理 */
+  .mono { font-family: 'Fira Code', monospace; }
 
-  /* ================= 顶部悬浮导航栏 ================= */
-  .top-nav {
-    position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
-    display: flex; gap: 10px; padding: 10px 20px;
-    background: var(--nav-bg); backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border); border-radius: 50px;
-    z-index: 100; box-shadow: var(--shadow);
-    transition: background 0.4s, border-color 0.4s;
+  #bg-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
+
+  /* ================= 全局布局 ================= */
+  .layout-container { position: relative; z-index: 10; display: flex; height: 100vh; padding: 20px; gap: 20px; max-width: 1600px; margin: 0 auto; }
+
+  /* ================= 左侧侧边栏（固定身份名片） ================= */
+  .sidebar-card { 
+    width: 320px; flex-shrink: 0; background: var(--glass); border: 1px solid var(--glass-border); 
+    border-radius: 24px; padding: 30px 20px; backdrop-filter: blur(20px); box-shadow: var(--shadow);
+    display: flex; flex-direction: column; overflow-y: auto;
   }
   
-  .nav-link {
-    display: flex; align-items: center; gap: 8px;
-    color: var(--text-sub); text-decoration: none; font-size: 15px; font-weight: 500;
-    padding: 10px 20px; border-radius: 30px; transition: all 0.3s ease; cursor: pointer;
+  .profile-area { text-align: center; margin-bottom: 40px; padding-top: 20px; }
+  .avatar { 
+    width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 20px; 
+    background: linear-gradient(135deg, var(--accent), #b481ff); padding: 3px;
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+  .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--bg-grad-1); }
+  .profile-name { font-size: 28px; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+  .profile-sub { font-size: 14px; color: var(--text-sub); font-weight: 600; letter-spacing: 1px; }
+
+  /* 导航菜单 */
+  .nav-menu { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+  .nav-item { 
+    display: flex; align-items: center; gap: 15px; padding: 14px 20px; 
+    border-radius: 14px; color: var(--text-sub); text-decoration: none; font-weight: 600; font-size: 15px;
+    transition: all 0.3s ease; cursor: pointer; border: 1px solid transparent;
+  }
+  .nav-item:hover { background: var(--card-hover); color: var(--text); }
+  .nav-item.active { 
+    background: var(--card-hover); color: var(--text); border-color: var(--glass-border); 
+    box-shadow: inset 0 0 10px rgba(255,255,255,0.02); 
+  }
+  .nav-item.active .nav-icon { color: var(--accent); filter: drop-shadow(0 0 5px var(--accent-glow)); }
+  .nav-icon { width: 20px; height: 20px; transition: all 0.3s; }
+
+  /* 侧边栏底部控制区 */
+  .sidebar-bottom { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
+  .theme-toggle { 
+    width: 40px; height: 40px; border-radius: 12px; background: var(--card-hover); border: 1px solid var(--glass-border);
+    display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text); font-size: 18px;
+    transition: all 0.3s;
+  }
+  .theme-toggle:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+  .status { font-size: 12px; color: #10b981; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+  .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; animation: pulse 2s infinite; }
+  @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+  /* ================= 右侧内容区（动态面板） ================= */
+  .content-area { 
+    flex: 1; background: var(--glass); border: 1px solid var(--glass-border); 
+    border-radius: 24px; padding: 40px; backdrop-filter: blur(20px); box-shadow: var(--shadow);
+    overflow-y: auto; position: relative;
   }
   
-  .nav-link:hover { color: var(--text); background: var(--card-hover); }
-  .nav-link.active { color: var(--text); background: var(--card-hover); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-  .nav-link svg { width: 18px; height: 18px; }
+  .page-section { display: none; animation: fadeIn 0.4s ease; height: 100%; }
+  .page-section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* ================= 主题切换按钮 ================= */
-  .theme-toggle {
-    position: fixed; top: 30px; right: 30px;
-    width: 45px; height: 45px; border-radius: 50%;
-    background: var(--nav-bg); border: 1px solid var(--glass-border);
-    display: flex; justify-content: center; align-items: center;
-    cursor: pointer; z-index: 100; backdrop-filter: blur(20px);
-    box-shadow: var(--shadow); transition: all 0.3s ease;
-    color: var(--text); font-size: 20px;
-  }
-  .theme-toggle:hover { transform: scale(1.1); background: var(--card-hover); }
+  /* 终端风格标题 */
+  .section-header { margin-bottom: 40px; display: flex; align-items: center; gap: 12px; }
+  .section-header::before { content: ''; display: block; width: 12px; height: 12px; border-radius: 50%; background: #ff5f56; box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f; margin-right: 40px; }
+  .section-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+  .section-title span { color: var(--accent); }
 
-  /* ================= 主体内容区域 ================= */
-  .main-content { 
-    position: absolute; top: 0; left: 0; width: 100%; height: 100vh; 
-    overflow-y: auto; display: flex; justify-content: center; align-items: center; 
-    padding: 120px 20px 40px; 
-  }
-  
-  .page-section { width: 100%; max-width: 1000px; display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s ease; }
-  .page-section.active { display: flex; }
-  
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* ================= 首页大字排版 ================= */
-  .hero-greet { font-size: 24px; letter-spacing: 10px; color: var(--text-sub); margin-bottom: 20px; font-weight: 600; text-transform: uppercase; }
-  .hero-title { font-size: 6vw; font-weight: 900; letter-spacing: -2px; margin-bottom: 20px; text-align: center; line-height: 1.1; }
-  .grad { 
-    background: linear-gradient(135deg, #6fa8ff, #b481ff, #ff8bc1); 
-    background-size: 200% 200%;
-    -webkit-background-clip: text; 
-    -webkit-text-fill-color: transparent; 
-    animation: gradientFlow 5s ease infinite;
-  }
+  /* ================= 首页特定 ================= */
+  .hero-text-box { display: flex; flex-direction: column; justify-content: center; height: calc(100% - 80px); }
+  .hero-greet { font-size: 20px; color: var(--accent); margin-bottom: 10px; font-weight: 600; }
+  .hero-title { font-size: 64px; font-weight: 800; letter-spacing: -2px; margin-bottom: 24px; line-height: 1.1; }
+  .grad { background: linear-gradient(135deg, #6fa8ff, #b481ff, #ff8bc1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% 200%; animation: gradientFlow 5s ease infinite; }
   @keyframes gradientFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-  
-  .hero-sub { font-size: 20px; color: var(--text-sub); text-align: center; letter-spacing: 2px; }
+  .hero-sub { font-size: 18px; color: var(--text-sub); line-height: 1.8; max-width: 500px; }
 
-  /* ================= 通用标题 ================= */
-  .section-title { font-size: 32px; font-weight: bold; margin-bottom: 40px; text-align: center; }
-
-  /* ================= 卡片网格容器 ================= */
-  .card-container { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-  .link-card { 
-    background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; 
-    padding: 24px; backdrop-filter: blur(20px); text-decoration: none; color: var(--text); 
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; gap: 12px; 
+  /* ================= 卡片列表（关于我、下载） ================= */
+  .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .card { 
+    background: var(--glass-border); border: 1px solid transparent; border-radius: 16px; 
+    padding: 20px; text-decoration: none; color: var(--text); transition: all 0.3s;
+    display: flex; flex-direction: column; gap: 12px;
   }
-  .link-card:hover { background: var(--card-hover); transform: translateY(-8px); box-shadow: var(--shadow); border-color: var(--accent); }
-  .link-title { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 12px; }
-  .card-favicon { width: 24px; height: 24px; border-radius: 6px; }
-  .desc { font-size: 14px; color: var(--text-sub); line-height: 1.6; }
+  .card:hover { background: var(--card-hover); transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+  .card-header { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; }
+  .card-icon { width: 20px; height: 20px; border-radius: 4px; }
+  .card-desc { font-size: 13px; color: var(--text-sub); line-height: 1.5; }
 
-  /* 文件下载特定样式 */
-  .file-info { display: flex; align-items: flex-start; }
-  .file-icon { width: 44px; height: 44px; background: var(--card-hover); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: var(--accent); flex-shrink: 0; }
-  .file-icon svg { width: 22px; height: 22px; }
-  .download-btn { margin-top: auto; display: block; text-align: center; background: var(--accent); color: #fff; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 15px; transition: all 0.3s; }
-  .download-btn:hover { opacity: 0.9; transform: scale(0.98); }
+  /* 文件下载行列表（不同于卡片） */
+  .file-list { display: flex; flex-direction: column; gap: 12px; }
+  .file-row { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 16px 24px; background: var(--glass-border); border-radius: 16px; 
+    border: 1px solid transparent; transition: all 0.3s;
+  }
+  .file-row:hover { background: var(--card-hover); border-color: var(--accent); }
+  .file-main { display: flex; align-items: center; gap: 16px; }
+  .file-type-icon { width: 40px; height: 40px; background: var(--glass); border-radius: 10px; display: flex; justify-content: center; align-items: center; color: var(--accent); }
+  .file-name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .file-meta { font-size: 12px; color: var(--text-sub); font-family: 'Fira Code', monospace; }
+  .download-btn { 
+    background: var(--accent); color: #fff; text-decoration: none; padding: 10px 24px; border-radius: 10px; 
+    font-weight: 600; font-size: 14px; transition: all 0.3s; display: flex; align-items: center; gap: 8px;
+  }
+  .download-btn:hover { filter: brightness(1.1); box-shadow: 0 4px 15px var(--accent-glow); }
 
-  /* 留言板样式微调 */
-  .giscus-wrapper { width: 100%; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; backdrop-filter: blur(20px); }
+  /* 留言板 */
+  .giscus-container { background: var(--glass-border); border-radius: 16px; padding: 20px; }
 
-  /* ================= 响应式适配 ================= */
-  @media (max-width: 768px) {
-    .hero-title { font-size: 48px; }
-    .top-nav { width: 90%; padding: 8px; overflow-x: auto; justify-content: flex-start; }
-    .top-nav::-webkit-scrollbar { display: none; }
-    .nav-link { padding: 10px 16px; white-space: nowrap; font-size: 14px; }
-    .nav-link svg { display: none; }
-    .main-content { padding-top: 100px; align-items: flex-start; }
-    .theme-toggle { top: auto; bottom: 20px; right: 20px; } 
+  /* ================= 移动端适配 ================= */
+  @media (max-width: 900px) {
+    .layout-container { flex-direction: column; padding: 10px; gap: 10px; }
+    .sidebar-card { width: 100%; padding: 15px; flex-direction: row; align-items: center; justify-content: space-between; border-radius: 20px; }
+    .profile-area { display: flex; align-items: center; gap: 15px; margin: 0; padding: 0; text-align: left; }
+    .avatar { width: 50px; height: 50px; margin: 0; }
+    .profile-name { font-size: 20px; margin: 0; }
+    .profile-sub { font-size: 12px; display: none; }
+    
+    .nav-menu { flex-direction: row; margin: 0; gap: 5px; overflow-x: auto; }
+    .nav-item { padding: 10px; }
+    .nav-item span { display: none; } /* 手机端只显示图标 */
+    
+    .sidebar-bottom { display: none; } /* 手机端隐藏底部状态，把切换按钮放外面去 */
+    
+    .content-area { border-radius: 20px; padding: 20px; }
+    .hero-title { font-size: 40px; }
+    .file-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .download-btn { width: 100%; justify-content: center; }
   }
 </style>
 </head>
@@ -173,126 +198,157 @@
 
 <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
-<!-- ================= 日夜切换按钮 ================= -->
-<div class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="切换日夜模式">
-  🌙
+<div class="layout-container">
+
+  <!-- ================= 左侧身份名片 ================= -->
+  <aside class="sidebar-card">
+    <div class="profile-area">
+      <div class="avatar">
+        <img src="https://w.saobby.com/i/50x439dc" alt="头像">
+      </div>
+      <div class="profile-info">
+        <h1 class="profile-name">suziyue</h1>
+        <div class="profile-sub mono">// 学C++ · 玩MC</div>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <a class="nav-item active" data-page="home" onclick="switchPage('home', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>控制台主页</span>
+      </a>
+      <a class="nav-item" data-page="download" onclick="switchPage('download', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span>资源下载区</span>
+      </a>
+      <a class="nav-item" data-page="guestbook" onclick="switchPage('guestbook', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span>留言交流板</span>
+      </a>
+      <a class="nav-item" data-page="about" onclick="switchPage('about', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span>关于我</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="status mono"><div class="status-dot"></div> SYSTEM ONLINE</div>
+      <div class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</div>
+    </div>
+  </aside>
+
+  <!-- ================= 右侧内容面板 ================= -->
+  <main class="content-area">
+    
+    <!-- 1. 首页 -->
+    <section class="page-section active" id="page-home">
+      <div class="section-header">
+        <h2 class="section-title mono">~/<span>home</span></h2>
+      </div>
+      <div class="hero-text-box">
+        <div class="hero-greet mono">> Hello World_</div>
+        <h1 class="hero-title">I'm <span class="grad">suziyue</span></h1>
+      </div>
+    </section>
+
+    <!-- 2. 文件下载 -->
+    <section class="page-section" id="page-download">
+      <div class="section-header">
+        <h2 class="section-title mono">~/<span>downloads</span></h2>
+      </div>
+      <div class="file-list">
+        
+        <div class="file-row">
+          <div class="file-main">
+            <div class="file-type-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"></path><path d="M1 3h22v5H1z"></path><path d="M10 12h4"></path></svg>
+            </div>
+            <div>
+              <div class="file-name">软件安装包_v1.0.zip</div>
+              <div class="file-meta">SIZE: 45.2 MB | DATE: 2024-03-01</div>
+            </div>
+          </div>
+          <a href="https://github.com/suziyue1227/suziyue1227.github.io/archive/refs/heads/main.zip" target="_blank" class="download-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            下载
+          </a>
+        </div>
+
+        <div class="file-row">
+          <div class="file-main">
+            <div class="file-type-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </div>
+            <div>
+              <div class="file-name">高清壁纸合集.rar</div>
+              <div class="file-meta">SIZE: 120 MB | DATE: 2024-02-20</div>
+            </div>
+          </div>
+          <a href="https://picsum.photos/1920/1080" target="_blank" class="download-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            下载
+          </a>
+        </div>
+
+        <div class="file-row">
+          <div class="file-main">
+            <div class="file-type-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <div>
+              <div class="file-name">学习文档.pdf</div>
+              <div class="file-meta">SIZE: 3.5 MB | DATE: 2024-01-15</div>
+            </div>
+          </div>
+          <a href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" target="_blank" class="download-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            下载
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3. 留言板 -->
+    <section class="page-section" id="page-guestbook">
+      <div class="section-header">
+        <h2 class="section-title mono">~/<span>guestbook</span></h2>
+      </div>
+      <div class="giscus-container">
+        <div class="giscus" style="width: 100%;"></div>
+      </div>
+    </section>
+
+    <!-- 4. 关于我 -->
+    <section class="page-section" id="page-about">
+      <div class="section-header">
+        <h2 class="section-title mono">~/<span>about</span></h2>
+      </div>
+      <div class="grid-container">
+        <a class="card" href="https://space.bilibili.com/3546821257333694" target="_blank">
+          <div class="card-header"><img src="https://www.bilibili.com/favicon.ico" class="card-icon"> Bilibili</div>
+          <div class="card-desc">我的B站个人空间</div>
+        </a>
+        <a class="card" href="https://github.com/suziyue1227" target="_blank">
+          <div class="card-header"><img src="https://github.com/favicon.ico" class="card-icon"> GitHub</div>
+          <div class="card-desc">我的开源代码仓库</div>
+        </a>
+        <a class="card" href="https://www.luogu.com.cn/user/2009994" target="_blank">
+          <div class="card-header"><img src="https://www.luogu.com.cn/favicon.ico" class="card-icon"> 洛谷</div>
+          <div class="card-desc">洛谷编程平台个人主页</div>
+        </a>
+        <a class="card" href="mailto:suziyue1227@163.com">
+          <div class="card-header">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            邮箱
+          </div>
+          <div class="card-desc">suziyue1227@163.com</div>
+        </a>
+      </div>
+    </section>
+
+  </main>
 </div>
-
-<!-- ================= 顶部悬浮导航栏 ================= -->
-<nav class="top-nav">
-  <a href="#" class="nav-link active" data-page="home" onclick="switchPage('home', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-    首页
-  </a>
-  <a href="#" class="nav-link" data-page="guestbook" onclick="switchPage('guestbook', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-    留言板
-  </a>
-  <a href="#" class="nav-link" data-page="about" onclick="switchPage('about', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-    关于我
-  </a>
-  <a href="#" class="nav-link" data-page="download" onclick="switchPage('download', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-    文件下载
-  </a>
-</nav>
-
-<!-- ================= 主体内容区域 ================= -->
-<main class="main-content">
-
-  <!-- 1. 首页 -->
-  <section class="page-section active" id="page-home">
-    <div class="hero-greet">Hi</div>
-    <h1 class="hero-title">I'm <span class="grad">suziyue</span></h1>
-    <p class="hero-sub">学c++ · 打mc</p>
-  </section>
-
-  <!-- 2. 留言板 -->
-  <section class="page-section" id="page-guestbook">
-    <h2 class="section-title">留言板</h2>
-    <div class="giscus-wrapper">
-      <div class="giscus" style="width: 100%;"></div>
-    </div>
-  </section>
-
-  <!-- 3. 关于我 -->
-  <section class="page-section" id="page-about">
-    <h2 class="section-title">关于我</h2>
-    <div class="card-container">
-      <a class="link-card" href="https://space.bilibili.com/3546821257333694" target="_blank" rel="noopener">
-        <div class="link-title"><img src="https://www.bilibili.com/favicon.ico" class="card-favicon" alt="Bilibili">bilibili</div>
-        <div class="desc">我的B站个人空间</div>
-      </a>
-      <a class="link-card" href="https://github.com/suziyue1227" target="_blank" rel="noopener">
-        <div class="link-title"><img src="https://github.com/favicon.ico" class="card-favicon" alt="GitHub">GitHub</div>
-        <div class="desc">我的开源代码仓库</div>
-      </a>
-      <a class="link-card" href="https://www.luogu.com.cn/user/2009994" target="_blank" rel="noopener">
-        <div class="link-title"><img src="https://www.luogu.com.cn/favicon.ico" class="card-favicon" alt="Luogu">洛谷</div>
-        <div class="desc">洛谷编程平台个人主页</div>
-      </a>
-      <a class="link-card" href="mailto:suziyue1227@163.com">
-        <div class="link-title">
-          <svg class="card-favicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-          联系邮箱
-        </div>
-        <div class="desc">suziyue1227@163.com</div>
-      </a>
-    </div>
-  </section>
-
-  <!-- 4. 文件下载 -->
-  <section class="page-section" id="page-download">
-    <h2 class="section-title">文件下载</h2>
-    <div class="card-container">
-      
-      <!-- 下载项 1 -->
-      <div class="link-card">
-        <div class="file-info">
-          <div class="file-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"></path><path d="M1 3h22v5H1z"></path><path d="M10 12h4"></path></svg>
-          </div>
-          <div style="flex: 1; margin-left: 16px;">
-            <div class="link-title">软件安装包_v1.0.zip</div>
-            <div class="desc">大小: 45.2 MB | 更新: 2024-03-01</div>
-          </div>
-        </div>
-        <a href="https://github.com/suziyue1227/suziyue1227.github.io/archive/refs/heads/main.zip" target="_blank" class="download-btn">下载文件</a>
-      </div>
-
-      <!-- 下载项 2 -->
-      <div class="link-card">
-        <div class="file-info">
-          <div class="file-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-          </div>
-          <div style="flex: 1; margin-left: 16px;">
-            <div class="link-title">高清壁纸合集.rar</div>
-            <div class="desc">大小: 120 MB | 更新: 2024-02-20</div>
-          </div>
-        </div>
-        <a href="https://picsum.photos/1920/1080" target="_blank" class="download-btn">下载文件</a>
-      </div>
-
-      <!-- 下载项 3 -->
-      <div class="link-card">
-        <div class="file-info">
-          <div class="file-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          </div>
-          <div style="flex: 1; margin-left: 16px;">
-            <div class="link-title">学习文档.pdf</div>
-            <div class="desc">大小: 3.5 MB | 更新: 2024-01-15</div>
-          </div>
-        </div>
-        <a href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" target="_blank" class="download-btn">下载文件</a>
-      </div>
-
-    </div>
-  </section>
-
-</main>
 
 <!-- ================= giscus 评论系统脚本 ================= -->
 <script src="https://giscus.app/client.js"
@@ -330,7 +386,6 @@
   function toggleTheme() {
     const root = document.documentElement;
     let newTheme;
-    
     if (root.dataset.theme === 'light') {
       root.removeAttribute('data-theme'); 
       localStorage.setItem('site_theme', 'dark');
@@ -340,7 +395,6 @@
       localStorage.setItem('site_theme', 'light');
       newTheme = 'light';
     }
-    
     updateThemeIcon();
     updateGiscusTheme(newTheme); 
   }
@@ -356,7 +410,6 @@
     }
   });
 
-
   // ================= 页面切换逻辑 =================
   function switchPage(pageId, el) {
     document.querySelectorAll('.page-section').forEach(section => {
@@ -365,12 +418,8 @@
     
     const targetPage = document.getElementById('page-' + pageId);
     targetPage.classList.add('active');
-
-    targetPage.style.animation = 'none';
-    targetPage.offsetHeight; 
-    targetPage.style.animation = 'fadeIn 0.5s ease';
     
-    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active'));
     el.classList.add('active');
   }
 
@@ -397,7 +446,6 @@
       this.updateColor();
     }
     updateColor() {
-      // 根据主题更新粒子颜色
       this.color = document.documentElement.dataset.theme === 'light' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255, 255, 255, 0.25)';
     }
     update() {
@@ -416,7 +464,7 @@
     }
   }
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 80; i++) {
     particles.push(new Particle());
   }
 
