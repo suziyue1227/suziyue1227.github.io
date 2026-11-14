@@ -113,11 +113,10 @@
   
   .profile-area { text-align: center; margin-bottom: 40px; padding-top: 20px; }
   
-  /* 新增：动态流光渐变头像 */
+  /* 动态流光渐变头像 */
   .avatar { 
     width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 20px; 
     padding: 3px;
-    /* 动态背景渐变 */
     background: linear-gradient(135deg, #a882ff, #ff8bc1, #6fa8ff, #a882ff);
     background-size: 300% 300%;
     animation: avatarGlow 4s ease infinite;
@@ -136,9 +135,8 @@
     display: flex; justify-content: center; align-items: center;
     font-size: 46px; font-weight: 800; 
     font-family: 'Fira Code', monospace;
-    background: var(--glass-bg); /* 半透明底色透出后面的流光 */
+    background: var(--glass-bg);
     backdrop-filter: blur(10px);
-    /* 文字也加上渐变色 */
     background: linear-gradient(135deg, #ffffff, #ffd2ed, #a882ff);
     background-size: 200% 200%;
     -webkit-background-clip: text;
@@ -303,7 +301,6 @@
   <!-- ================= 左侧身份名片 ================= -->
   <aside class="sidebar-card">
     <div class="profile-area">
-      <!-- 动态渐变头像 -->
       <div class="avatar">
         <div class="avatar-text">S</div>
       </div>
@@ -423,8 +420,8 @@
           <div class="card-desc">网页版 Minecraft 在线游玩</div>
         </a>
         <a class="card" href="https://space.bilibili.com/3707046805375091?spm_id_from=333.1007.0.0" target="_blank">
-        <div class="card-header"><img src="https://www.bilibili.com/favicon.ico" class="card-icon"> Bilibili</div>
-        <div class="card-desc">我的B站个人空间</div>
+          <div class="card-header"><img src="https://www.bilibili.com/favicon.ico" class="card-icon"> Bilibili</div>
+          <div class="card-desc">我的B站个人空间</div>
         </a>
         <a class="card" href="https://github.com/suziyue1227" target="_blank">
           <div class="card-header"><img src="https://github.com/favicon.ico" class="card-icon"> GitHub</div>
@@ -466,7 +463,7 @@
         <h2 class="section-title mono">~/<span>about</span></h2>
       </div>
       <div class="grid-container">
-        <a class="card" href="https://space.bilibili.com/3546821257333694" target="_blank">
+        <a class="card" href="https://space.bilibili.com/3707046805375091?spm_id_from=333.1007.0.0" target="_blank">
           <div class="card-header"><img src="https://www.bilibili.com/favicon.ico" class="card-icon"> Bilibili</div>
           <div class="card-desc">我的B站个人空间</div>
         </a>
