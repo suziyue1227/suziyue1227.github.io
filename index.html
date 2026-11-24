@@ -12,9 +12,12 @@
 <script>
   try {
     var pref = localStorage.getItem('site_theme') || 'auto';
-    var isDark = pref === 'dark' || (pref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    if (!isDark) document.documentElement.dataset.theme = 'light';
-  } catch (e) {}
+    var isDark = pref === 'dark' ||
+      (pref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+  } catch (e) {
+    document.documentElement.dataset.theme = 'dark';
+  }
 </script>
 
 <style>
@@ -113,7 +116,6 @@
   
   .profile-area { text-align: center; margin-bottom: 40px; padding-top: 20px; }
   
-  /* 动态流光渐变头像 */
   .avatar { 
     width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 20px; 
     padding: 3px;
@@ -211,7 +213,7 @@
   .grad { background: linear-gradient(135deg, #a882ff, #ff8bc1, #6fa8ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% 200%; animation: gradientFlow 5s ease infinite; }
   @keyframes gradientFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-  /* ================= 卡片列表 ================= */
+  /* ================= 通用卡片网格 ================= */
   .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
   .card { 
     background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); border-radius: 16px; 
@@ -223,23 +225,29 @@
   .card-icon { width: 20px; height: 20px; border-radius: 4px; object-fit: contain; }
   .card-desc { font-size: 13px; color: var(--text-sub); line-height: 1.5; }
 
-  /* ================= 友情链接 ================= */
-  .friend-list { display: flex; flex-direction: column; gap: 12px; }
-  .friend-row { 
-    display: flex; justify-content: space-between; align-items: center; 
-    padding: 16px 24px; background: rgba(255, 255, 255, 0.05); border-radius: 16px; 
-    border: 1px solid var(--glass-border); transition: all 0.3s; backdrop-filter: blur(10px);
-    text-decoration: none; color: var(--text);
+  /* ================= 友情链接卡片样式 ================= */
+  .friend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .friend-card { 
+    display: flex; align-items: center; gap: 16px; 
+    padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; 
+    border: 1px solid var(--glass-border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    backdrop-filter: blur(10px); text-decoration: none; color: var(--text);
   }
-  .friend-row:hover { background: var(--glass-hover); border-color: var(--accent); transform: translateX(8px); box-shadow: -4px 0 15px rgba(168, 130, 255, 0.2); }
-  .friend-main { display: flex; align-items: center; gap: 16px; }
-  .friend-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--glass-hover); display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; color: var(--accent); }
-  .friend-name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
-  .friend-desc { font-size: 12px; color: var(--text-sub); }
-  .friend-arrow { color: var(--accent); transition: transform 0.3s; }
-  .friend-row:hover .friend-arrow { transform: translateX(5px); }
+  .friend-card:hover { 
+    background: var(--glass-hover); border-color: var(--accent); 
+    transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
+  }
+  .friend-avatar { 
+    width: 56px; height: 56px; border-radius: 50%; background: var(--glass-hover); 
+    display: flex; justify-content: center; align-items: center; 
+    font-size: 24px; font-weight: bold; color: var(--accent); flex-shrink: 0;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  }
+  .friend-info { display: flex; flex-direction: column; gap: 4px; }
+  .friend-name { font-weight: 700; font-size: 16px; }
+  .friend-desc { font-size: 12px; color: var(--text-sub); line-height: 1.4; }
 
-  /* 文件下载 */
+  /* ================= 文件下载 ================= */
   .file-list { display: flex; flex-direction: column; gap: 12px; }
   .file-row { 
     display: flex; justify-content: space-between; align-items: center; 
@@ -278,9 +286,8 @@
     
     .content-area { border-radius: 20px; padding: 20px; }
     .hero-title { font-size: 40px; }
-    .file-row, .friend-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .file-row { flex-direction: column; align-items: flex-start; gap: 16px; }
     .download-btn { width: 100%; justify-content: center; }
-    .friend-arrow { display: none; }
   }
 </style>
 </head>
@@ -315,10 +322,6 @@
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         <span>控制台主页</span>
       </a>
-      <a class="nav-item" data-page="download" onclick="switchPage('download', this)">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        <span>资源下载区</span>
-      </a>
       <a class="nav-item" data-page="guestbook" onclick="switchPage('guestbook', this)">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
         <span>留言交流板</span>
@@ -330,6 +333,10 @@
       <a class="nav-item" data-page="friend" onclick="switchPage('friend', this)">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         <span>友情链接</span>
+      </a>
+      <a class="nav-item" data-page="download" onclick="switchPage('download', this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span>资源下载区</span>
       </a>
       <a class="nav-item" data-page="about" onclick="switchPage('about', this)">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -364,22 +371,6 @@
       </div>
       <div class="file-list">
         
-        <div class="file-row">
-          <div class="file-main">
-            <div class="file-type-icon">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"></path><path d="M1 3h22v5H1z"></path><path d="M10 12h4"></path></svg>
-            </div>
-            <div>
-              <div class="file-name">软件安装包_v1.0.zip</div>
-              <div class="file-meta">SIZE: 45.2 MB | DATE: 2024-03-01</div>
-            </div>
-          </div>
-          <a href="https://github.com/suziyue1227/suziyue1227.github.io/archive/refs/heads/main.zip" target="_blank" class="download-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            下载
-          </a>
-        </div>
-
         <div class="file-row">
           <div class="file-main">
             <div class="file-type-icon">
@@ -419,15 +410,15 @@
           <div class="card-header">🎮 mc.js.link</div>
           <div class="card-desc">网页版 Minecraft 在线游玩</div>
         </a>
-        <a class="card" href="https://space.bilibili.com/3707046805375091?spm_id_from=333.1007.0.0" target="_blank">
+        <a class="card" href="https://www.bilibili.com/" target="_blank">
           <div class="card-header"><img src="https://www.bilibili.com/favicon.ico" class="card-icon"> Bilibili</div>
           <div class="card-desc">我的B站个人空间</div>
         </a>
-        <a class="card" href="https://github.com/suziyue1227" target="_blank">
+        <a class="card" href="https://github.com/" target="_blank">
           <div class="card-header"><img src="https://github.com/favicon.ico" class="card-icon"> GitHub</div>
           <div class="card-desc">我的开源代码仓库</div>
         </a>
-        <a class="card" href="https://www.luogu.com.cn/user/2009994" target="_blank">
+        <a class="card" href="https://www.luogu.com.cn/" target="_blank">
           <div class="card-header"><img src="https://www.luogu.com.cn/favicon.ico" class="card-icon"> 洛谷</div>
           <div class="card-desc">洛谷编程平台个人主页</div>
         </a>
@@ -439,18 +430,21 @@
       <div class="section-header">
         <h2 class="section-title mono">~/<span>friends</span></h2>
       </div>
-      <div class="friend-list">
+      <div class="friend-grid">
         
-        <a href="https://curious-guoguo.github.io/" target="_blank" class="friend-row">
-          <div class="friend-main">
-            <div class="friend-avatar">C</div>
-            <div>
-              <div class="friend-name">curious-guoguo</div>
-              <div class="friend-desc">写代码 · 打游戏 · 折腾各种东西</div>
-            </div>
+        <a href="https://curious-guoguo.github.io/" target="_blank" class="friend-card">
+          <div class="friend-avatar">C</div>
+          <div class="friend-info">
+            <div class="friend-name">curious-guoguo</div>
+            <div class="friend-desc">写代码 · 打游戏 · 折腾各种东西</div>
           </div>
-          <div class="friend-arrow">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+
+        <a href="https://game.hullqin.cn/" target="_blank" class="friend-card">
+          <div class="friend-avatar" style="background: rgba(59, 130, 246, 0.2); color: #3b82f6;">H</div>
+          <div class="friend-info">
+            <div class="friend-name">HullQin 小游戏</div>
+            <div class="friend-desc">超好玩的网页小游戏合集</div>
           </div>
         </a>
 
@@ -488,78 +482,116 @@
   </main>
 </div>
 
-<!-- ================= giscus 评论系统脚本 ================= -->
-<script src="https://giscus.app/client.js"
-        data-repo="suziyue1227/suziyue1227.github.io"
-        data-repo-id="R_kgDOVlGRrg"
-        data-category="Announcements"
-        data-category-id="DIC_kwDOVlGRrs4DKoph"
-        data-mapping="pathname"
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="bottom"
-        data-theme="dark"
-        data-lang="zh-CN"
-        crossorigin="anonymous"
-        async>
+<!-- ================= giscus 评论系统（动态注入，按当前主题初始化） ================= -->
+<script>
+  (function () {
+    var isLight = document.documentElement.dataset.theme === 'light';
+    var s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js';
+    s.setAttribute('data-repo', 'suziyue1227/suziyue1227.github.io');
+    s.setAttribute('data-repo-id', 'R_kgDOVlGRrg');
+    s.setAttribute('data-category', 'Announcements');
+    s.setAttribute('data-category-id', 'DIC_kwDOVlGRrs4DKoph');
+    s.setAttribute('data-mapping', 'pathname');
+    s.setAttribute('data-strict', '0');
+    s.setAttribute('data-reactions-enabled', '1');
+    s.setAttribute('data-emit-metadata', '0');
+    s.setAttribute('data-input-position', 'bottom');
+    s.setAttribute('data-theme', isLight ? 'light' : 'dark');
+    s.setAttribute('data-lang', 'zh-CN');
+    s.crossOrigin = 'anonymous';
+    s.async = true;
+    document.body.appendChild(s);
+  })();
 </script>
 
 <script>
-  // ================= 日夜模式切换及 giscus 联动 =================
-  function updateThemeIcon() {
-    const isLight = document.documentElement.dataset.theme === 'light';
-    document.getElementById('themeBtn').innerHTML = isLight ? '☀️' : '🌙';
+  // ================= 主题切换与 giscus 联动 =================
+  // 当 iframe 还没加载完就切主题时，先记下来，等它出现再补发
+  let pendingGiscusTheme = null;
+
+  function getCurrentTheme() {
+    return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
   }
 
-  function updateGiscusTheme(theme) {
-    const iframe = document.querySelector('.giscus-frame');
-    if (!iframe) return;
+  function updateThemeIcon() {
+    const btn = document.getElementById('themeBtn');
+    if (btn) btn.textContent = getCurrentTheme() === 'light' ? '☀️' : '🌙';
+  }
+
+  function applyGiscusTheme(theme) {
+    const iframe = document.querySelector('iframe.giscus-frame');
+    if (!iframe) {
+      pendingGiscusTheme = theme;
+      return;
+    }
     iframe.contentWindow.postMessage(
       { giscus: { setConfig: { theme: theme } } },
       'https://giscus.app'
     );
+    pendingGiscusTheme = null;
   }
 
   function toggleTheme() {
     const root = document.documentElement;
-    let newTheme;
-    if (root.dataset.theme === 'light') {
-      root.removeAttribute('data-theme'); 
-      localStorage.setItem('site_theme', 'dark');
-      newTheme = 'dark';
-    } else {
-      root.dataset.theme = 'light'; 
-      localStorage.setItem('site_theme', 'light');
-      newTheme = 'light';
-    }
+    const next = getCurrentTheme() === 'light' ? 'dark' : 'light';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('site_theme', next);
+    } catch (e) {}
     updateThemeIcon();
-    updateGiscusTheme(newTheme); 
+    applyGiscusTheme(next);
   }
 
-  updateThemeIcon();
-
-  window.addEventListener('message', function(event) {
-    if (event.origin === 'https://giscus.app' && event.data.giscus) {
-      if (event.data.giscus.resizeHeight) {
-        const currentTheme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
-        updateGiscusTheme(currentTheme);
-      }
+  // 只监听 giscus 加载完成事件，补发待同步主题；不再回发主题，避免循环抖动
+  window.addEventListener('message', function (event) {
+    if (event.origin !== 'https://giscus.app') return;
+    if (!event.data || !event.data.giscus) return;
+    if (pendingGiscusTheme) {
+      applyGiscusTheme(pendingGiscusTheme);
     }
   });
 
-  // ================= 页面切换逻辑 =================
+  updateThemeIcon();
+
+  // ================= 页面切换逻辑（支持 hash 刷新恢复） =================
   function switchPage(pageId, el) {
-    document.querySelectorAll('.page-section').forEach(section => {
-      section.classList.remove('active');
-    });
-    
-    const targetPage = document.getElementById('page-' + pageId);
-    targetPage.classList.add('active');
-    
+    const target = document.getElementById('page-' + pageId);
+    if (!target) return;
+
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    target.classList.add('active');
+
     document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active'));
-    el.classList.add('active');
+    if (el) {
+      el.classList.add('active');
+    } else {
+      const matched = document.querySelector('.nav-item[data-page="' + pageId + '"]');
+      if (matched) matched.classList.add('active');
+    }
+
+    if (location.hash !== '#' + pageId) {
+      history.replaceState(null, '', '#' + pageId);
+    }
   }
+
+  // 页面加载时根据 hash 恢复对应页面
+  document.addEventListener('DOMContentLoaded', function () {
+    const page = (location.hash || '#home').slice(1);
+    const el = document.querySelector('.nav-item[data-page="' + page + '"]');
+    if (el) {
+      switchPage(page, el);
+    } else {
+      switchPage('home', document.querySelector('.nav-item[data-page="home"]'));
+    }
+  });
+
+  // 支持浏览器前进/后退切换页面
+  window.addEventListener('hashchange', function () {
+    const page = (location.hash || '#home').slice(1);
+    const el = document.querySelector('.nav-item[data-page="' + page + '"]');
+    if (el) switchPage(page, el);
+  });
 </script>
 </body>
 </html>
