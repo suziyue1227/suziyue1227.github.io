@@ -23,13 +23,23 @@
 // 当 iframe 还没加载完就切主题时，先记下来，等它出现再补发
 let pendingGiscusTheme = null;
 
+// 深/浅色主题对应的浏览器地址栏配色
+const THEME_COLORS = { dark: '#000000', light: '#f0f4f8' };
+
 function getCurrentTheme() {
   return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
 }
 
 function updateThemeIcon() {
+  const theme = getCurrentTheme();
   const btn = document.getElementById('themeBtn');
-  if (btn) btn.textContent = getCurrentTheme() === 'light' ? '☀️' : '🌙';
+  if (btn) {
+    btn.textContent = theme === 'light' ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', theme === 'light' ? '切换到深色主题' : '切换到浅色主题');
+  }
+  // 同步手机浏览器地址栏 / 状态栏配色
+  const meta = document.getElementById('themeColor');
+  if (meta) meta.setAttribute('content', THEME_COLORS[theme]);
 }
 
 function applyGiscusTheme(theme) {
@@ -45,15 +55,38 @@ function applyGiscusTheme(theme) {
   pendingGiscusTheme = null;
 }
 
-function toggleTheme() {
-  const root = document.documentElement;
-  const next = getCurrentTheme() === 'light' ? 'dark' : 'light';
-  root.dataset.theme = next;
-  try {
-    localStorage.setItem('site_theme', next);
-  } catch (e) {}
+function setTheme(next, persist) {
+  document.documentElement.dataset.theme = next;
+  if (persist) {
+    try {
+      localStorage.setItem('site_theme', next);
+    } catch (e) {}
+  }
   updateThemeIcon();
   applyGiscusTheme(next);
+}
+
+function toggleTheme() {
+  setTheme(getCurrentTheme() === 'light' ? 'dark' : 'light', true);
+}
+
+// 用户还没手动选过主题时，跟随系统明暗设置实时切换
+function hasSavedTheme() {
+  try {
+    return !!localStorage.getItem('site_theme');
+  } catch (e) {
+    return false;
+  }
+}
+
+const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+function onSystemThemeChange(e) {
+  if (!hasSavedTheme()) setTheme(e.matches ? 'dark' : 'light', false);
+}
+if (darkQuery.addEventListener) {
+  darkQuery.addEventListener('change', onSystemThemeChange);
+} else if (darkQuery.addListener) {
+  darkQuery.addListener(onSystemThemeChange); // Safari < 14
 }
 
 // 只监听 giscus 加载完成事件，补发待同步主题；不再回发主题，避免循环抖动
@@ -67,19 +100,29 @@ window.addEventListener('message', function (event) {
 
 updateThemeIcon();
 
+// 主题按钮已是真正的 <button>，在此绑定点击，不依赖内联 onclick
+const themeBtn = document.getElementById('themeBtn');
+if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+
 // ================= 页面切换逻辑（支持 hash 刷新恢复） =================
+// 导航已改为真正的 <a href="#page">，方向键、回车、前进后退都由浏览器处理
 function switchPage(pageId, el) {
   const target = document.getElementById('page-' + pageId);
   if (!target) return;
-  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.page-section').forEach(function (s) {
+    s.classList.remove('active');
+  });
   target.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active'));
-  if (el) {
-    el.classList.add('active');
-  } else {
-    const matched = document.querySelector('.nav-item[data-page="' + pageId + '"]');
-    if (matched) matched.classList.add('active');
-  }
+  const activeLink = el || document.querySelector('.nav-item[data-page="' + pageId + '"]');
+  document.querySelectorAll('.nav-item').forEach(function (link) {
+    if (link === activeLink) {
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.classList.remove('active');
+      link.removeAttribute('aria-current');
+    }
+  });
   if (location.hash !== '#' + pageId) {
     history.replaceState(null, '', '#' + pageId);
   }

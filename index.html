@@ -3,10 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="suziyue 个人主页">
+<meta name="description" content="suziyue 的个人主页 — 学 C++ · 玩 MC，收录快捷入口、友情链接、资源下载与留言板">
 <meta name="author" content="suziyue">
+<meta name="theme-color" content="#000000" id="themeColor">
 <title>suziyue | 个人主页</title>
+<link rel="canonical" href="https://suziyue1227.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="suziyue | 个人主页">
+<meta property="og:description" content="学 C++ · 玩 MC">
+<meta property="og:url" content="https://suziyue1227.github.io/">
+<meta name="twitter:card" content="summary">
 <link rel="icon" href="https://cdn.luogu.com.cn/upload/image_hosting/uoba4bc0.webp" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <!-- 主题初始化：必须在首次绘制前同步执行，避免明暗闪烁 -->
@@ -35,34 +44,34 @@
 </div>
 </div>
 <nav class="nav-menu">
-<a class="nav-item active" data-page="home" onclick="switchPage('home', this)">
+<a class="nav-item active" data-page="home" href="#home" aria-current="page">
 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
 <span>控制台主页</span>
 </a>
-<a class="nav-item" data-page="guestbook" onclick="switchPage('guestbook', this)">
+<a class="nav-item" data-page="guestbook" href="#guestbook">
 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
 <span>留言交流板</span>
 </a>
-<a class="nav-item" data-page="tools" onclick="switchPage('tools', this)">
+<a class="nav-item" data-page="tools" href="#tools">
 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
 <span>百宝箱</span>
 </a>
-<a class="nav-item" data-page="friend" onclick="switchPage('friend', this)">
+<a class="nav-item" data-page="friend" href="#friend">
 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
 <span>友情链接</span>
 </a>
-<a class="nav-item" data-page="download" onclick="switchPage('download', this)">
+<a class="nav-item" data-page="download" href="#download">
 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
 <span>资源下载区</span>
 </a>
-<a class="nav-item" data-page="about" onclick="switchPage('about', this)">
+<a class="nav-item" data-page="about" href="#about">
 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
 <span>我的信息</span>
 </a>
 </nav>
 <div class="sidebar-bottom">
-<div class="status mono"><div class="status-dot"></div> SYSTEM ONLINE</div>
-<div class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</div>
+<div class="status mono"><span class="status-dot"></span> SYSTEM ONLINE</div>
+<button type="button" class="theme-toggle" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">🌙</button>
 </div>
 </aside>
 <!-- ================= 右侧内容面板 ================= -->
@@ -86,21 +95,6 @@
 <div class="file-row">
 <div class="file-main">
 <div class="file-type-icon">
-<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-</div>
-<div>
-<div class="file-name">高清壁纸合集.rar</div>
-<div class="file-meta">SIZE: 120 MB | DATE: 2024-02-20</div>
-</div>
-</div>
-<a href="https://picsum.photos/1920/1080" target="_blank" class="download-btn">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
- 下载
-</a>
-</div>
-<div class="file-row">
-<div class="file-main">
-<div class="file-type-icon">
 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M3 9h18"></path><path d="M9 21V9"></path></svg>
 </div>
 <div>
@@ -108,7 +102,7 @@
 <div class="file-meta">OPEN SOURCE | WINDOWS | GITHUB RELEASES</div>
 </div>
 </div>
-<a href="https://github.com/Meloong-Git/PCL/releases" target="_blank" class="download-btn">
+<a href="https://github.com/Meloong-Git/PCL/releases" target="_blank" rel="noopener noreferrer" class="download-btn">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
  前往下载
 </a>
@@ -130,21 +124,21 @@
 <h2 class="section-title mono">~/<span>toolbox</span></h2>
 </div>
 <div class="grid-container">
-<a class="card" href="https://mc.js.link/" target="_blank">
+<a class="card" href="https://mc.js.link/" target="_blank" rel="noopener noreferrer">
 <div class="card-header">🎮 mc.js.link</div>
 <div class="card-desc">网页版 Minecraft 在线游玩</div>
 </a>
-<a class="card" href="https://www.bilibili.com/" target="_blank">
-<div class="card-header"><img src="https://www.bilibili.com/favicon.ico" class="card-icon"> Bilibili</div>
-<div class="card-desc">我的B站个人空间</div>
+<a class="card" href="https://www.bilibili.com/" target="_blank" rel="noopener noreferrer">
+<div class="card-header"><img src="https://www.bilibili.com/favicon.ico" class="card-icon" alt="" loading="lazy"> Bilibili</div>
+<div class="card-desc">哔哩哔哩弹幕视频网</div>
 </a>
-<a class="card" href="https://github.com/" target="_blank">
-<div class="card-header"><img src="https://github.com/favicon.ico" class="card-icon"> GitHub</div>
-<div class="card-desc">我的开源代码仓库</div>
+<a class="card" href="https://github.com/" target="_blank" rel="noopener noreferrer">
+<div class="card-header"><img src="https://github.com/favicon.ico" class="card-icon" alt="" loading="lazy"> GitHub</div>
+<div class="card-desc">全球最大的代码托管平台</div>
 </a>
-<a class="card" href="https://www.luogu.com.cn/" target="_blank">
-<div class="card-header"><img src="https://www.luogu.com.cn/favicon.ico" class="card-icon"> 洛谷</div>
-<div class="card-desc">洛谷编程平台个人主页</div>
+<a class="card" href="https://www.luogu.com.cn/" target="_blank" rel="noopener noreferrer">
+<div class="card-header"><img src="https://www.luogu.com.cn/favicon.ico" class="card-icon" alt="" loading="lazy"> 洛谷</div>
+<div class="card-desc">在线编程与算法刷题平台</div>
 </a>
 </div>
 </section>
@@ -154,14 +148,14 @@
 <h2 class="section-title mono">~/<span>friends</span></h2>
 </div>
 <div class="friend-grid">
-<a href="https://curious-guoguo.github.io/" target="_blank" class="friend-card">
+<a href="https://curious-guoguo.github.io/" target="_blank" rel="noopener noreferrer" class="friend-card">
 <div class="friend-avatar"><img class="friend-icon" src="https://curious-guoguo.github.io/logo.svg" alt="curious-guoguo"></div>
 <div class="friend-info">
 <div class="friend-name">curious-guoguo</div>
 <div class="friend-desc">写代码 · 打游戏 · 折腾各种东西</div>
 </div>
 </a>
-<a href="https://game.hullqin.cn/" target="_blank" class="friend-card">
+<a href="https://game.hullqin.cn/" target="_blank" rel="noopener noreferrer" class="friend-card">
 <div class="friend-avatar"><img class="friend-icon" src="https://fe-1255520126.file.myqcloud.com/game/icon64-ed8a0a.png" alt="HullQin 小游戏"></div>
 <div class="friend-info">
 <div class="friend-name">HullQin 小游戏</div>
@@ -176,16 +170,16 @@
 <h2 class="section-title mono">~/<span>about</span></h2>
 </div>
 <div class="grid-container">
-<a class="card" href="https://space.bilibili.com/3707046805375091?spm_id_from=333.1007.0.0" target="_blank">
-<div class="card-header"><img src="https://www.bilibili.com/favicon.ico" class="card-icon"> Bilibili</div>
+<a class="card" href="https://space.bilibili.com/3707046805375091" target="_blank" rel="noopener noreferrer">
+<div class="card-header"><img src="https://www.bilibili.com/favicon.ico" class="card-icon" alt="" loading="lazy"> Bilibili</div>
 <div class="card-desc">我的B站个人空间</div>
 </a>
-<a class="card" href="https://github.com/suziyue1227" target="_blank">
-<div class="card-header"><img src="https://github.com/favicon.ico" class="card-icon"> GitHub</div>
+<a class="card" href="https://github.com/suziyue1227" target="_blank" rel="noopener noreferrer">
+<div class="card-header"><img src="https://github.com/favicon.ico" class="card-icon" alt="" loading="lazy"> GitHub</div>
 <div class="card-desc">我的开源代码仓库</div>
 </a>
-<a class="card" href="https://www.luogu.com.cn/user/2009994" target="_blank">
-<div class="card-header"><img src="https://www.luogu.com.cn/favicon.ico" class="card-icon"> 洛谷</div>
+<a class="card" href="https://www.luogu.com.cn/user/2009994" target="_blank" rel="noopener noreferrer">
+<div class="card-header"><img src="https://www.luogu.com.cn/favicon.ico" class="card-icon" alt="" loading="lazy"> 洛谷</div>
 <div class="card-desc">洛谷编程平台个人主页</div>
 </a>
 <a class="card" href="mailto:suziyue1227@163.com">
